@@ -29,7 +29,32 @@ npm install
 
 ## Configuration
 
-### 1. Set up Cloudflare Secrets
+### 1. Local Development - Set up `.dev.vars`
+
+For local development, create a `.dev.vars` file in the project root:
+
+```bash
+# Copy the example file
+cp .dev.vars.example .dev.vars
+```
+
+Then add your API keys to `.dev.vars`:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-api-key-here
+CAL_API_KEY=cal_live_your-cal-api-key-here
+```
+
+**How to get your API keys:**
+
+- **Anthropic API Key**: Get from https://console.anthropic.com/settings/keys
+- **Cal.com API Key**: Get from https://app.cal.com/settings/developer/api-keys
+
+**Important:** `.dev.vars` is gitignored and will never be committed to the repository. Your secrets are safe!
+
+### 2. Production - Set up Cloudflare Secrets
+
+For production deployment, use Cloudflare secrets:
 
 ```bash
 # Anthropic API key
@@ -39,7 +64,7 @@ wrangler secret put ANTHROPIC_API_KEY
 wrangler secret put CAL_API_KEY
 ```
 
-### 2. Update wrangler.toml (optional)
+### 3. Update wrangler.toml (optional)
 
 ```toml
 [vars]
@@ -48,13 +73,36 @@ DEFAULT_DURATION_MINUTES = "30"
 CAL_API_URL = "https://api.cal.com/v2"
 ```
 
+## Getting Your Cal.com Calendar ID
+
+You need a Cal.com event type ID (calendar ID) to make requests. Here's how to find it:
+
+### Option 1: Use the helper script
+
+```bash
+node get-calendar-ids.js
+```
+
+This will list all your event types with their IDs.
+
+### Option 2: Find it in the Cal.com dashboard
+
+1. Go to https://app.cal.com/event-types
+2. Click on an event type
+3. Look at the URL - the number at the end is your `calendarId`
+   - Example: `https://app.cal.com/event-types/123456` → ID is `123456`
+
 ## Usage
 
 ### Development
 
 ```bash
 npm run dev
+# or
+npx wrangler dev
 ```
+
+The dev server will start at `http://localhost:8787` (or similar port).
 
 ### Deployment
 
