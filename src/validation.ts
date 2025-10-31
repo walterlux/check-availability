@@ -1,15 +1,22 @@
 import { z } from 'zod';
 import { US_TIMEZONES } from './types';
 
-// Request validation schema
+// Conversation message schema
+const ConversationMessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string(),
+  timestamp: z.string(),
+});
+
+// Request validation schema (matches ElevenLabs tool schema)
 export const AvailabilityRequestSchema = z.object({
-  timezone: z.enum(US_TIMEZONES),
-  userQuery: z.string().min(1).max(500),
+  timeZone: z.enum(US_TIMEZONES),
+  userMessage: z.string().min(1).max(2000),
   flexibilityHours: z.number().min(0).max(24).default(2),
-  systemPrompt: z.string().max(2000).optional(),
-  rejectedTimes: z.array(z.string().datetime({ offset: true })).max(50).optional(),
-  calendarId: z.string().min(1),
+  systemPrompt: z.string().max(10000).optional(),
+  rejectedTimes: z.string().max(500).optional(),
   duration: z.number().int().min(15).max(180).default(30),
+  conversationHistory: z.array(ConversationMessageSchema).optional(),
 });
 
 // LLM response validation schema

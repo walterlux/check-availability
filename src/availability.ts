@@ -83,7 +83,6 @@ function applyFlexibility(
 async function getGuaranteedSlots(
   parseResult: ParseDateResult,
   flexibilityHours: number,
-  calendarId: string,
   duration: number,
   timezone: string,
   rejectedTimes: string[] | undefined,
@@ -138,7 +137,7 @@ async function getGuaranteedSlots(
         {
           dateFrom: attempt.range.start,
           dateTo: attempt.range.end,
-          eventTypeId: calendarId,
+          eventTypeId: env.CALENDAR_ID,
           duration,
           timeZone: timezone,
         },
@@ -176,7 +175,7 @@ async function getGuaranteedSlots(
     return slotStart >= llmStart && slotStart <= llmEnd;
   });
 
-  const proposed = allSlots
+  let proposed = allSlots
     .filter((slot) => !available.some((a) => a.start === slot.start))
     .map((slot) => {
       const slotStart = DateTime.fromISO(slot.start);
@@ -191,6 +190,25 @@ async function getGuaranteedSlots(
     })
     .sort((a, b) => a.distanceMinutes - b.distanceMinutes)
     .slice(0, 10); // Top 10 alternatives
+
+  // GUARANTEE: proposed list is never empty
+  // If proposed is empty, use all slots as proposed alternatives
+  if (proposed.length === 0) {
+    proposed = allSlots
+      .map((slot) => {
+        const slotStart = DateTime.fromISO(slot.start);
+        const distanceMinutes = Math.abs(
+          slotStart.diff(llmStart, 'minutes').minutes
+        );
+        return {
+          ...slot,
+          distanceMinutes,
+          reason: calculateReason(slotStart, llmStart),
+        };
+      })
+      .sort((a, b) => a.distanceMinutes - b.distanceMinutes)
+      .slice(0, 10);
+  }
 
   return { available, proposed, calApiMs } as any;
 }
@@ -224,11 +242,16 @@ export async function checkAvailability(
   const totalStart = Date.now();
   const llmStart = Date.now();
 
+  // Parse rejectedTimes from string to array if provided
+  const rejectedTimesArray = request.rejectedTimes
+    ? JSON.parse(request.rejectedTimes)
+    : undefined;
+
   // Step 1: Parse user query
   const parseResult = await parseUserQuery(
-    request.userQuery,
-    request.timezone,
-    request.rejectedTimes,
+    request.userMessage,
+    request.timeZone,
+    rejectedTimesArray,
     request.systemPrompt,
     env
   );
@@ -239,10 +262,9 @@ export async function checkAvailability(
   const { available, proposed, calApiMs } = (await getGuaranteedSlots(
     parseResult,
     request.flexibilityHours,
-    request.calendarId,
     request.duration,
-    request.timezone,
-    request.rejectedTimes,
+    request.timeZone,
+    rejectedTimesArray,
     env
   )) as any;
 
@@ -257,8 +279,8 @@ export async function checkAvailability(
 
   return {
     success: true,
-    available,
-    proposed,
+    available: available.map((slot: CalSlot) => slot.start),
+    proposed: proposed.map((slot: ProposedSlot) => slot.start),
     metadata: {
       parsedIntent: {
         requestedStart: parseResult.startTime,

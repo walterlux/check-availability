@@ -3,6 +3,7 @@ export interface Env {
   ANTHROPIC_API_KEY: string;
   CAL_API_KEY: string;
   CAL_API_URL?: string;
+  CALENDAR_ID: string;
   DEFAULT_FLEXIBILITY_HOURS?: string;
   DEFAULT_DURATION_MINUTES?: string;
 }
@@ -46,15 +47,22 @@ export interface CalAvailabilityResponse {
   };
 }
 
+// Conversation message for context
+export interface ConversationMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+}
+
 // API Request/Response types
 export interface AvailabilityRequest {
-  timezone: USTimezone;
-  userQuery: string;
+  timeZone: USTimezone;
+  userMessage: string;
   flexibilityHours: number;
   systemPrompt?: string;
-  rejectedTimes?: string[];
-  calendarId: string;
+  rejectedTimes?: string;
   duration: number;
+  conversationHistory?: ConversationMessage[];
 }
 
 export interface ProposedSlot extends CalSlot {
@@ -64,8 +72,8 @@ export interface ProposedSlot extends CalSlot {
 
 export interface AvailabilityResponse {
   success: true;
-  available: CalSlot[];
-  proposed: ProposedSlot[];
+  available: string[];
+  proposed: string[];
   metadata: {
     parsedIntent: {
       requestedStart: string;
@@ -99,6 +107,6 @@ export interface PromptContext {
   currentTime: string;
   timezone: string;
   userQuery: string;
-  rejectedTimes?: string[];
+  rejectedTimes?: string;
   systemPrompt?: string;
 }

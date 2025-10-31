@@ -22,8 +22,8 @@ function buildDateParsingPrompt(context: PromptContext): string {
 **Current Context:**
 - Current time: ${context.currentTime}
 - Timezone: ${context.timezone}
-${context.rejectedTimes && context.rejectedTimes.length > 0
-  ? `- Previously rejected times (AVOID these):\n${formatRejectedTimes(context.rejectedTimes)}`
+${context.rejectedTimes && context.rejectedTimes.trim().length > 0
+  ? `- Previously rejected times (AVOID these): ${formatRejectedTimes(context.rejectedTimes)}`
   : ''}
 
 **User Query:** "${context.userQuery}"
@@ -63,8 +63,10 @@ Parse the user's natural language query into a specific date/time range. Return 
    - Be conservative: prefer 1-2 hour ranges
 
 5. **Rejected Times:**
-   - If user's query matches a rejected time, suggest the next available hour
+   - These are ISO 8601 timestamps (comma-separated) that the user has already declined
+   - Do NOT suggest times that match or overlap with rejected times
    - Avoid suggesting times within 30 minutes of rejected slots
+   - Consider these as unavailable when interpreting the user's query
 
 6. **Confidence Scoring:**
    - 0.9-1.0: Explicit date + time ("tomorrow at 2pm")
@@ -87,13 +89,10 @@ Parse the user's natural language query into a specific date/time range. Return 
 - Return ONLY the JSON object, no additional text`;
 }
 
-function formatRejectedTimes(rejectedTimes?: string[]): string {
-  if (!rejectedTimes || rejectedTimes.length === 0) return '';
+function formatRejectedTimes(rejectedTimes?: string): string {
+  if (!rejectedTimes || rejectedTimes.trim().length === 0) return '';
 
-  return rejectedTimes
-    .slice(0, 10) // Limit to 10 to save tokens
-    .map(time => `  • ${time}`)
-    .join('\n');
+  return rejectedTimes.trim();
 }
 
 /**

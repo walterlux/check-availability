@@ -39,15 +39,15 @@ export default {
               description:
                 'Check calendar availability using natural language queries',
               requiredFields: {
-                timezone: 'US timezone (America/New_York, etc.)',
-                userQuery: 'Natural language date/time query',
-                calendarId: 'Cal.com event type ID',
+                timeZone: 'US timezone (America/New_York, etc.)',
+                userMessage: 'Natural language date/time query',
               },
               optionalFields: {
                 flexibilityHours: 'number (default: 2)',
                 systemPrompt: 'Custom LLM prompt',
                 rejectedTimes: 'Array of ISO 8601 timestamps to avoid',
                 duration: 'Meeting duration in minutes (default: 30)',
+                conversationHistory: 'Array of conversation messages for context',
               },
             },
           },
@@ -134,10 +134,11 @@ async function handleCheckAvailability(
     console.log(
       JSON.stringify({
         event: 'availability_request',
-        timezone: validatedRequest.timezone,
-        query: validatedRequest.userQuery,
-        calendarId: validatedRequest.calendarId,
+        timeZone: validatedRequest.timeZone,
+        userMessage: validatedRequest.userMessage,
+        calendarId: env.CALENDAR_ID,
         flexibilityHours: validatedRequest.flexibilityHours,
+        hasConversationHistory: !!validatedRequest.conversationHistory,
       })
     );
 

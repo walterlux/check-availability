@@ -28,3 +28,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Claude Code local settings
+.claude/settings.local.json
