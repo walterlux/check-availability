@@ -242,16 +242,11 @@ export async function checkAvailability(
   const totalStart = Date.now();
   const llmStart = Date.now();
 
-  // Parse rejectedTimes from string to array if provided
-  const rejectedTimesArray = request.rejectedTimes
-    ? JSON.parse(request.rejectedTimes)
-    : undefined;
-
   // Step 1: Parse user query
   const parseResult = await parseUserQuery(
     request.userMessage,
     request.timeZone,
-    rejectedTimesArray,
+    request.rejectedTimes,
     request.systemPrompt,
     env
   );
@@ -264,7 +259,7 @@ export async function checkAvailability(
     request.flexibilityHours,
     request.duration,
     request.timeZone,
-    rejectedTimesArray,
+    request.rejectedTimes,
     env
   )) as any;
 

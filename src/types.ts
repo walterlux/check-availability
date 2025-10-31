@@ -60,7 +60,7 @@ export interface AvailabilityRequest {
   userMessage: string;
   flexibilityHours: number;
   systemPrompt?: string;
-  rejectedTimes?: string;
+  rejectedTimes?: string[];
   duration: number;
   conversationHistory?: ConversationMessage[];
 }

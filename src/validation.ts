@@ -14,7 +14,7 @@ export const AvailabilityRequestSchema = z.object({
   userMessage: z.string().min(1).max(2000),
   flexibilityHours: z.number().min(0).max(24).default(2),
   systemPrompt: z.string().max(10000).optional(),
-  rejectedTimes: z.string().max(500).optional(),
+  rejectedTimes: z.array(z.string()).max(50).optional(),
   duration: z.number().int().min(15).max(180).default(30),
   conversationHistory: z.array(ConversationMessageSchema).optional(),
 });
