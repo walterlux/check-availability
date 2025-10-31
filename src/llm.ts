@@ -49,13 +49,14 @@ Parse the user's natural language query into a specific date/time range. Return 
    - "12/25", "Dec 25" → December 25
    - "March 31st 2026" → specific year
 
-3. **Time Expressions:**
-   - "morning" → 9:00 AM - 12:00 PM
-   - "around lunch" / "lunchtime" → 11:30 AM - 1:30 PM
-   - "afternoon" → 1:00 PM - 5:00 PM
-   - "evening" → 5:00 PM - 8:00 PM
+3. **Time Expressions (ALWAYS in user's timezone):**
+   - "morning" → 9:00 AM - 12:00 PM in the user's timezone
+   - "around lunch" / "lunchtime" → 11:30 AM - 1:30 PM in the user's timezone
+   - "afternoon" → 1:00 PM - 5:00 PM in the user's timezone
+   - "evening" → 5:00 PM - 8:00 PM in the user's timezone
    - "same time" → use current hour from context
-   - Specific times: "2pm", "14:00", "2:30pm"
+   - Specific times: "2pm", "14:00", "2:30pm" - interpret in user's timezone
+   - IMPORTANT: When user says "afternoon", they mean afternoon in THEIR timezone (${context.timezone}), not UTC or any other timezone
 
 4. **Default Ranges:**
    - If no time specified → assume 9:00 AM - 5:00 PM (business hours)
