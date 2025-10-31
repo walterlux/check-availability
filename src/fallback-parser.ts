@@ -13,8 +13,11 @@ export function fallbackParse(
 ): LLMDateParseResponse {
   const now = DateTime.fromISO(currentTime, { zone: timezone });
 
-  // Parse with chrono-node
-  const parsed = chrono.parse(userQuery, now.toJSDate(), {
+  // Parse with chrono-node in the user's timezone
+  // Create a reference date that represents "now" in the user's local time
+  const refDate = now.toJSDate();
+
+  const parsed = chrono.parse(userQuery, refDate, {
     forwardDate: true, // Always interpret dates in future
   });
 
@@ -25,9 +28,40 @@ export function fallbackParse(
 
   // Take first parsed result
   const result = parsed[0];
-  let start = DateTime.fromJSDate(result.start.date(), { zone: timezone });
+
+  // Extract date components from the parsed result
+  // chrono returns dates in the local timezone of the reference date
+  const parsedJsDate = result.start.date();
+
+  // When chrono parses, it returns a Date object
+  // We need to interpret this Date's components as being in the user's timezone
+  // Extract year, month, day from the parsed date and create a new DateTime in user's TZ
+  let start = DateTime.fromObject(
+    {
+      year: parsedJsDate.getFullYear(),
+      month: parsedJsDate.getMonth() + 1,
+      day: parsedJsDate.getDate(),
+      hour: parsedJsDate.getHours(),
+      minute: parsedJsDate.getMinutes(),
+      second: 0,
+      millisecond: 0,
+    },
+    { zone: timezone }
+  );
+
   let end = result.end
-    ? DateTime.fromJSDate(result.end.date(), { zone: timezone })
+    ? DateTime.fromObject(
+        {
+          year: result.end.date().getFullYear(),
+          month: result.end.date().getMonth() + 1,
+          day: result.end.date().getDate(),
+          hour: result.end.date().getHours(),
+          minute: result.end.date().getMinutes(),
+          second: 0,
+          millisecond: 0,
+        },
+        { zone: timezone }
+      )
     : start.plus({ hours: 1 });
 
   // Apply time-of-day heuristics
