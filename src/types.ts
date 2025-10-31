@@ -107,6 +107,6 @@ export interface PromptContext {
   currentTime: string;
   timezone: string;
   userQuery: string;
-  rejectedTimes?: string;
+  rejectedTimes?: string[];
   systemPrompt?: string;
 }

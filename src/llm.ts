@@ -22,7 +22,7 @@ function buildDateParsingPrompt(context: PromptContext): string {
 **Current Context:**
 - Current time: ${context.currentTime}
 - Timezone: ${context.timezone}
-${context.rejectedTimes && context.rejectedTimes.trim().length > 0
+${context.rejectedTimes && context.rejectedTimes.length > 0
   ? `- Previously rejected times (AVOID these): ${formatRejectedTimes(context.rejectedTimes)}`
   : ''}
 
@@ -89,10 +89,10 @@ Parse the user's natural language query into a specific date/time range. Return 
 - Return ONLY the JSON object, no additional text`;
 }
 
-function formatRejectedTimes(rejectedTimes?: string): string {
-  if (!rejectedTimes || rejectedTimes.trim().length === 0) return '';
+function formatRejectedTimes(rejectedTimes?: string[]): string {
+  if (!rejectedTimes || rejectedTimes.length === 0) return '';
 
-  return rejectedTimes.trim();
+  return rejectedTimes.join(', ');
 }
 
 /**

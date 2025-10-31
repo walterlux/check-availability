@@ -9,7 +9,7 @@ export function fallbackParse(
   userQuery: string,
   currentTime: string,
   timezone: string,
-  rejectedTimes?: string
+  rejectedTimes?: string[]
 ): LLMDateParseResponse {
   const now = DateTime.fromISO(currentTime, { zone: timezone });
 
@@ -63,7 +63,7 @@ export function fallbackParse(
   }
 
   // Avoid rejected times
-  if (rejectedTimes && rejectedTimes.trim().length > 0) {
+  if (rejectedTimes && rejectedTimes.length > 0) {
     start = avoidRejectedTimes(start, rejectedTimes, timezone);
     end = start.plus({ hours: 1 });
   }
@@ -101,16 +101,11 @@ function defaultTimeSlot(
  */
 function avoidRejectedTimes(
   proposedStart: DateTime,
-  rejectedTimes: string,
+  rejectedTimes: string[],
   timezone: string
 ): DateTime {
-  // Parse comma-separated ISO datetime strings
-  const rejectedTimestamps = rejectedTimes
-    .split(',')
-    .map((t) => t.trim())
-    .filter((t) => t.length > 0);
-
-  const rejected = rejectedTimestamps
+  // Parse array of ISO datetime strings
+  const rejected = rejectedTimes
     .map((t) => {
       try {
         return DateTime.fromISO(t, { zone: timezone });
