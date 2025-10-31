@@ -8,7 +8,7 @@ account_id = "a5d8e989915973e9ca29963ef5cef77a"
 DEFAULT_FLEXIBILITY_HOURS = "2"
 DEFAULT_DURATION_MINUTES = "30"
 CAL_API_URL = "https://api.cal.com/v2"
-CALENDAR_ID = "3788110"
+CALENDAR_ID = "3731065"
 
 # Add your secrets via:
 # wrangler secret put ANTHROPIC_API_KEY
