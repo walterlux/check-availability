@@ -1,6 +1,8 @@
 name = "cal-availability-checker"
 main = "src/index.ts"
 compatibility_date = "2024-10-29"
+# Cloudflare account ID for Lux AI
+account_id = "a5d8e989915973e9ca29963ef5cef77a"
 
 [vars]
 DEFAULT_FLEXIBILITY_HOURS = "2"
